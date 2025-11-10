@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from 'react-router';
-import HomeButton from '../HomeButton';
+import HomeButton from './HomeButton';
 
 const Layout = () => {
   const location = useLocation();

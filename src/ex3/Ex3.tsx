@@ -2,20 +2,54 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../store/store';
 import { decrease, increase } from '../store/balanceSlice';
+import { select, updateBalance } from '../store/cardsSlice';
 
 const Ex3 = () => {
   const balance = useSelector((state: RootState) => state.balance.balance);
+  const cards = useSelector((state: RootState) => state.cards.cards);
+  const selectedCardId = useSelector((state: RootState) => state.cards.selectedCardId);
   const dispatch = useDispatch<AppDispatch>();
   const [amount, setAmount] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
+
+  const selectedCard = cards.find(c => c.id === selectedCardId);
 
   const handleDecrease = () => {
-    dispatch(decrease(amount));
+    if (amount <= 0) {
+      setError('Amount must be greater than zero');
+      return;
+    }
+
+    if (selectedCardId) {
+      if (amount > selectedCard!.balance) {
+        setError('Insufficient balance');
+        return;
+      }
+      dispatch(updateBalance({ id: selectedCardId, amount: -amount }));
+    } else {
+      if (amount > balance) {
+        setError('Insufficient balance');
+        return;
+      }
+      dispatch(decrease(amount));
+    }
     setAmount(0);
+    setError(null);
   };
 
   const handleIncrease = () => {
-    dispatch(increase(amount));
+    if (amount <= 0) {
+      setError('Amount must be greater than zero');
+      return;
+    }
+
+    if (selectedCardId) {
+      dispatch(updateBalance({ id: selectedCardId, amount }));
+    } else {
+      dispatch(increase(amount));
+    }
     setAmount(0);
+    setError(null);
   };
 
   return (
@@ -57,6 +91,37 @@ const Ex3 = () => {
                   💰 Increase
                 </button>
               </div>
+              <div>
+                {cards.length > 0 && (
+                  <div className="space-y-2">
+                    {cards.map((card) => (
+                      <label
+                        key={card.id}
+                        className="flex items-center space-x-2 cursor-pointer"
+                      >
+                        <input
+                          type="radio"
+                          name="card"
+                          value={card.id}
+                          checked={selectedCardId === card.id}
+                          onChange={(e) => dispatch(select(e.target.value))}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                          {card.holderName} - {card.number}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                {error && (
+                  <p className="p-2 text-sm text-center text-red-600 bg-red-100 rounded">
+                    {error}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
           <div className="p-6 bg-white border-l-4 border-blue-500 rounded-lg shadow-md">
@@ -65,7 +130,7 @@ const Ex3 = () => {
                 <p className="mb-1 text-sm font-medium text-gray-600">
                   Current Balance
                 </p>
-                <p className="text-3xl font-bold text-gray-800">{balance}€</p>
+                <p className="text-3xl font-bold text-gray-800">{selectedCard ? selectedCard.balance : balance}€</p>
               </div>
               <div className="text-5xl">💳</div>
             </div>
