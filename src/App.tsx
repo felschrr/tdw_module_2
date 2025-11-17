@@ -3,7 +3,7 @@ const App = () => {
     { href: "/ex1", title: "class 07", available: true },
     { href: "/ex2", title: "class 08", available: true },
     { href: "/ex3", title: "class 09", available: true },
-    { href: null, title: "coming soon", available: false },
+    { href: "/ex4", title: "class 10", available: true },
   ];
 
   return (

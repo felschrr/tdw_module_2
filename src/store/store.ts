@@ -1,12 +1,16 @@
 import { configureStore } from '@reduxjs/toolkit'
 import balanceReducer, { type BalanceState } from './balanceSlice'
 import cardsReducer, { type CardsState } from './cardsSlice'
+import { petApi } from './petSlice'
 
 export const store = configureStore({
   reducer: {
     balance: balanceReducer,
-    cards: cardsReducer
+    cards: cardsReducer,
+    [petApi.reducerPath]: petApi.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(petApi.middleware),
 })
 
 export interface RootState {
